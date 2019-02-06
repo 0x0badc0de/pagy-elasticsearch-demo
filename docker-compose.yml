@@ -1,0 +1,48 @@
+version: '3.4'
+
+services:
+  web:
+    image: ruby:2.6.0
+    command: bundle exec rails s
+    ports:
+      - '3000:3000'
+    working_dir: /app
+    depends_on:
+      - db
+      - elastic
+    tmpfs:
+      - /app/tmp
+    volumes:
+      - .:/app
+      - gem_home:/usr/local/bundle
+    # Keep the stdin open, so we can attach to our app container's process
+    # and do things such as debugging, etc:
+    stdin_open: true
+    # Enable sending signals (CTRL+C, CTRL+P + CTRL+Q) into the container:
+    tty: true
+
+  elastic:
+    image: elasticsearch:6.5.4
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+    expose:
+      - 9200
+
+  db:
+    image: postgres:11.1
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    expose:
+      - 5432
+
+volumes:
+  elastic_data:
+  gem_home:
+  pgdata:
