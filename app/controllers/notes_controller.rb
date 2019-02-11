@@ -7,7 +7,7 @@ class NotesController < ApplicationController
   # GET /notes.json
   def index
     if params[:q].present?
-      @pagy, @notes = pagy_elasticsearch_rails(Note.search(params[:q]).records)
+      @pagy, @notes = pagy_elasticsearch_rails(Note.pagy_search(params[:q]).records)
     else
       @pagy, @notes = pagy(Note.order(created_at: :desc))
     end
